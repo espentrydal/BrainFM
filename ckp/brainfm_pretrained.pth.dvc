@@ -1,0 +1,5 @@
+outs:
+- md5: d03ab8cfd2201e2fb2fbd8a82b15c2c6
+  size: 3168932245
+  hash: md5
+  path: brainfm_pretrained.pth
