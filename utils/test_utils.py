@@ -1,43 +1,44 @@
 import os
+from pathlib import Path
+
 import numpy as np
 import torch
 
 from Generator.utils import fast_3D_interp_torch, myzoom_torch
 from Trainer.models import build_model, build_inpaint_model
-from utils.checkpoint import load_checkpoint 
-import utils.misc as utils 
+from utils.checkpoint import load_checkpoint
+import utils.misc as utils
 
 device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
 
 
 # default & gpu cfg # 
 
-#submit_cfg_file = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/submit.yaml'
-#default_gen_cfg_file = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/generator/default.yaml'
+#submit_cfg_file = 'cfgs/submit.yaml'
+#default_gen_cfg_file = 'cfgs/generator/default.yaml'
 
-#default_train_cfg_file = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/trainer/default_train.yaml'
-#default_val_file = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/trainer/default_val.yaml'
+#default_train_cfg_file = 'cfgs/trainer/default_train.yaml'
+#default_val_file = 'cfgs/trainer/default_val.yaml'
 
-#gen_cfg_dir = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/generator/test'
-#train_cfg_dir = '/autofs/space/yogurt_003/users/pl629/code/MTBrainID/cfgs/trainer/test'
+#gen_cfg_dir = 'cfgs/generator/test'
+#train_cfg_dir = 'cfgs/trainer/test'
 
-#atlas_path = '/autofs/vast/lemon/temp_stuff/peirong/data/gca.mgz'
+#atlas_path = 'data/gca.mgz'
 
 
 
-submit_cfg_file = '/autofs/vast/lemon/temp_stuff/brainfm/cfg/defaults/submit.yaml'
-default_gen_cfg_file = '/autofs/vast/lemon/temp_stuff/brainfm/cfg/defaults/default_gen.yaml'
-
-default_train_cfg_file = '/autofs/vast/lemon/temp_stuff/brainfm/cfg/defaults/default_train.yaml'
-default_val_file = '/autofs/vast/lemon/temp_stuff/brainfm/cfg/defaults/default_val.yaml'
-
+_ROOT = Path(__file__).resolve().parent
+submit_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/submit.yaml')
+default_gen_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_gen.yaml')
+default_train_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_train.yaml')
+default_val_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_val.yaml')
 
 gen_cfg_dir = ''
 train_cfg_dir = ''
-atlas_path = '/autofs/vast/lemon/temp_stuff/brainfm/files/gca.mgz'
+atlas_path = Path(__file__).resolve().parents[1] / "files" / "gca.mgz"
 
 
-MNI, aff2 = utils.MRIread(atlas_path)
+MNI, aff2 = utils.MRIread(str(atlas_path))
 A = np.linalg.inv(aff2)
 A = torch.tensor(A, device=device, dtype=torch.float32) 
 MNI = torch.tensor(MNI, device = device, dtype = torch.float32)

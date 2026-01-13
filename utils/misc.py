@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import warnings
 from argparse import Namespace
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import numpy as np
 import nibabel as nib
 from pathlib import Path
@@ -41,6 +41,70 @@ logger = logging.get_logger(__name__)
 '''if float(torchvision.__version__[:3]) < 0.7:
     from torchvision.ops import _new_empty_tensor
     from torchvision.ops.misc import _output_size'''
+
+
+def _spacing_from_header(img: nib.spatialimages.SpatialImage, n_dims: int) -> Tuple[float, ...]:
+    zooms = img.header.get_zooms()
+    spacing = [float(z) for z in zooms[:n_dims]]
+    if len(spacing) < n_dims:
+        spacing.extend([1.0] * (n_dims - len(spacing)))
+    return tuple(spacing)
+
+
+def _direction_from_affine(img: nib.spatialimages.SpatialImage, spacing: Tuple[float, ...], n_dims: int) -> Tuple[float, ...]:
+    spatial_dims = min(3, n_dims)
+    direction = np.eye(n_dims, dtype=float)
+    if spatial_dims:
+        rotation = np.array(img.affine[:spatial_dims, :spatial_dims], dtype=float)
+        inv_spacing = np.diag([1.0 / s if s != 0 else 1.0 for s in spacing[:spatial_dims]])
+        direction[:spatial_dims, :spatial_dims] = rotation @ inv_spacing
+    return tuple(direction.reshape(-1))
+
+
+def _origin_from_affine(img: nib.spatialimages.SpatialImage, n_dims: int) -> Tuple[float, ...]:
+    spatial_dims = min(3, n_dims)
+    origin = [0.0] * n_dims
+    if spatial_dims:
+        origin[:spatial_dims] = img.affine[:spatial_dims, 3]
+    return tuple(origin)
+
+
+def _metadata_from_nifti(img: nib.spatialimages.SpatialImage, data: np.ndarray) -> Tuple[Tuple[float, ...], Tuple[float, ...], Tuple[float, ...]]:
+    n_dims = max(data.ndim, 1)
+    spacing = _spacing_from_header(img, n_dims)
+    direction = _direction_from_affine(img, spacing, n_dims)
+    origin = _origin_from_affine(img, n_dims)
+    return origin, spacing, direction
+
+
+def _affine_from_metadata(
+    origin: Optional[Tuple[float, ...]],
+    spacing: Optional[Tuple[float, ...]],
+    direction: Optional[Tuple[float, ...]],
+    n_dims: int,
+) -> np.ndarray:
+    matrix_rank = min(3, max(n_dims, 1))
+    affine = np.eye(4, dtype=float)
+    if matrix_rank == 0:
+        return affine
+    spacing_vals = [1.0] * matrix_rank
+    if spacing:
+        for idx in range(matrix_rank):
+            if idx < len(spacing):
+                spacing_vals[idx] = spacing[idx]
+    direction_matrix = np.eye(matrix_rank, dtype=float)
+    if direction:
+        dir_rank = int(round(math.sqrt(len(direction))))
+        if dir_rank > 0:
+            direction_matrix = np.array(direction, dtype=float).reshape(dir_rank, dir_rank)
+            direction_matrix = direction_matrix[:matrix_rank, :matrix_rank]
+    rotation = direction_matrix @ np.diag(spacing_vals)
+    affine[:matrix_rank, :matrix_rank] = rotation
+    if origin:
+        for idx in range(matrix_rank):
+            if idx < len(origin):
+                affine[idx, 3] = origin[idx]
+    return affine
 
 
 def make_dir(dir_name, parents = True, exist_ok = True, reset = False):
