@@ -16,7 +16,6 @@ from typing import List, Optional
 import numpy as np
 import nibabel as nib
 from pathlib import Path
-import SimpleITK as sitk
 import matplotlib.pyplot as plt
 
 import utils.logging as logging
@@ -67,6 +66,7 @@ def save_image(nda, affine, save_path):
     return save_path
 
 def img2nda(img_path, save_path = None):
+    import SimpleITK as sitk
     img = sitk.ReadImage(img_path)
     nda = sitk.GetArrayFromImage(img)
     if save_path:
@@ -81,6 +81,7 @@ def to3d(img_path, save_path = None):
     return save_path
 
 def nda2img(nda, origin = None, spacing = None, direction = None, save_path = None, isVector = None):
+    import SimpleITK as sitk
     if type(nda) == torch.Tensor:
         nda = nda.cpu().detach().numpy()
     nda = np.squeeze(np.array(nda)) 
@@ -99,6 +100,7 @@ def nda2img(nda, origin = None, spacing = None, direction = None, save_path = No
 
 
 def cropping(img_path, tol = 0, crop_range_lst = None, spare = 0, save_path = None):
+    import SimpleITK as sitk
 
     img = sitk.ReadImage(img_path)
     orig_nda = sitk.GetArrayFromImage(img)
