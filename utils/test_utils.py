@@ -14,24 +14,11 @@ device = torch.cuda.current_device() if torch.cuda.is_available() else 'cpu'
 
 # default & gpu cfg # 
 
-#submit_cfg_file = 'cfgs/submit.yaml'
-#default_gen_cfg_file = 'cfgs/generator/default.yaml'
-
-#default_train_cfg_file = 'cfgs/trainer/default_train.yaml'
-#default_val_file = 'cfgs/trainer/default_val.yaml'
-
-#gen_cfg_dir = 'cfgs/generator/test'
-#train_cfg_dir = 'cfgs/trainer/test'
-
-#atlas_path = 'data/gca.mgz'
-
-
-
 _ROOT = Path(__file__).resolve().parent
-submit_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/submit.yaml')
-default_gen_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_gen.yaml')
-default_train_cfg_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_train.yaml')
-default_val_file = os.path.join(_ROOT, '..', 'cfg/defaults/default_val.yaml')
+submit_cfg_file = os.path.join(_ROOT, '..', 'cfgs/submit.yaml')
+default_gen_cfg_file = os.path.join(_ROOT, '..', 'cfgs/generator/default.yaml')
+default_train_cfg_file = os.path.join(_ROOT, '..', 'cfgs/trainer/default_train.yaml')
+default_val_file = os.path.join(_ROOT, '..', 'cfgs/trainer/default_val.yaml')
 
 gen_cfg_dir = ''
 train_cfg_dir = ''
