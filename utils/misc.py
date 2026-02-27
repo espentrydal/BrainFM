@@ -19,7 +19,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 import utils.logging as logging
-import utils.multiprocessing as mpu
+import utils.mpu as mpu
 from utils.process_cfg import load_config
 
 from collections import defaultdict, deque

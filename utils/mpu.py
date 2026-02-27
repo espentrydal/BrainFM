@@ -23,7 +23,7 @@ def run(
         num_proc (int): number of processes per machine.
         func (function): function to execute on each of the process.
         init_method (string): method to initialize the distributed training.
-            TCP initialization: equiring a network address reachable from all
+            TCP initialization: requiring a network address reachable from all
             processes followed by the port.
             Shared file-system initialization: makes use of a file system that
             is shared and visible from all machines. The URL should start with
@@ -33,7 +33,7 @@ def run(
         num_shards (int): number of overall machines for the distributed
             training job.
         backend (string): three distributed backends ('nccl', 'gloo', 'mpi') are
-            supports, each with different capabilities. Details can be found
+            supported, each with different capabilities. Details can be found
             here:
             https://pytorch.org/docs/stable/distributed.html
         cfg (CfgNode): list of configs. Details can be found in
